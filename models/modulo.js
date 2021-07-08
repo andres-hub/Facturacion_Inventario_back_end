@@ -9,6 +9,10 @@ const ModuloSchema = Schema({
     icono:{
         type: String,
         required: true
+    },
+    root:{
+        type: Boolean,
+        default: false
     }
 });
 

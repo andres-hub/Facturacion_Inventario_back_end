@@ -10,7 +10,7 @@ const  getMenuFrontEnd = async(req, uid) =>{
     try {
 
         const {role} = await Usuario.findById(uid);
-
+        
         const superUser = await   Parametros.findOne({ 'nombre' :'SUPE_USUARIO', 'valor': uid});
         
         if(superUser){
@@ -54,9 +54,9 @@ const  getMenuFrontEnd = async(req, uid) =>{
                 const submenu = [];
                 
                 const entidades = await Permiso.find({'asignado': role, 'modulo':modulo}).distinct('entidad');
-    
+               
                 await Promise.all(entidades.map(async (entidad)=>{
-
+                    
                     const {nombre, url} = await Entidad.findById(entidad);
     
                     submenu.push({
@@ -75,7 +75,6 @@ const  getMenuFrontEnd = async(req, uid) =>{
             }));
 
         }
-        
         return menu;
 
     } catch (error) {

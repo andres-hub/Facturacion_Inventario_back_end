@@ -49,6 +49,9 @@ const getPermisos = async(req, res = response) =>{
 const getAcciones = async(req, res = response) =>{
     try {    
 
+        
+        const superUser = await   Parametro.findOne({ 'nombre' :'SUPE_USUARIO', 'valor':req.uid});
+
         const id = req.params.id;
         
         const validarId = await validyty(id);
@@ -65,12 +68,14 @@ const getAcciones = async(req, res = response) =>{
         }
         
         const modulos = await Modulo.find();
-
         let menu = [];        
 
         await Promise.all(modulos.map(async (modulo)=>{
 
-            const entidades = await Entidad.find({'modulo': modulo._id});
+            var entidades = await Entidad.find({'modulo': modulo._id});
+            if(!superUser){
+                entidades = await Entidad.find({'modulo': modulo._id, 'root': false});;
+            }
 
             await Promise.all(entidades.map(async (entidad)=>{
 
@@ -100,6 +105,7 @@ const getAcciones = async(req, res = response) =>{
         });
 
     } catch (error) {
+        console.log(error);
         const msg = 'Error inesperado... Comuníquese con el administrador del sistema';
         const status = 500;
         guardarLog(req,error, msg, status);
