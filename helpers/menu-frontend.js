@@ -2,18 +2,14 @@ const Entidad = require("../models/entidad");
 const Modulo = require("../models/modulo");
 const Permiso = require("../models/permiso");
 const Usuario = require("../models/usuario");
-const Parametros = require("../models/parametro");
 const { guardarLog } = require('../helpers/guardar-Log');
 
-const  getMenuFrontEnd = async(req, uid) =>{
+const  getMenuFrontEnd = async(req) =>{
     const menu = [];
     try {
 
-        const {role} = await Usuario.findById(uid);
-        
-        const superUser = await   Parametros.findOne({ 'nombre' :'SUPE_USUARIO', 'valor': uid});
-        
-        if(superUser){
+        const {role} = await Usuario.findById(req.uid);
+        if(req.superUser){
             const modulos = await Modulo.find();
             
             await Promise.all(modulos.map(async (modulo)=>{

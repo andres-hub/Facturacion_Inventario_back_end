@@ -8,7 +8,7 @@ const { guardarLog } = require('../helpers/guardar-Log');
 const { sendEmail } = require('../helpers/sendEmial');
 
 const Usuario = require('../models/usuario');
-const { use } = require('../routes/auth');
+const Parametro = require('../models/parametro');
 
 const login = async(req, res = response)=>{
 
@@ -50,16 +50,15 @@ const login = async(req, res = response)=>{
             });
         }
 
-        const token = await generarJWT(usuarioDB.id, usuarioDB.role);
-        const menu = await getMenuFrontEnd(req,usuarioDB.id);
-        
         req.uid = usuarioDB.id;
 
+        const token = await generarJWT(usuarioDB.id, usuarioDB.role);
+        
+        req.superUser = false;
         guardarLog(req,email,`ok`);
         res.json({
             ok: true,
-            token,
-            menu
+            token
         });
         
     } catch (error) {
@@ -143,7 +142,13 @@ const renewToken = async(req, res = response)=>{
 
         const usuario = await Usuario.findById(uid);
 
-        const menu = await getMenuFrontEnd(req,usuario.id);
+        const superUser = await   Parametro.findOne({ 'nombre' :'SUPE_USUARIO', 'valor': uid});
+        if(superUser)
+        {
+            req.superUser = true;
+        }
+
+        const menu = await getMenuFrontEnd(req);
         
         res.json({
             ok: true,
