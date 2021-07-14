@@ -13,7 +13,7 @@ const Parametro = require('../models/parametro');
 const login = async(req, res = response)=>{
 
     try {
-
+        
         const {email, password} = req.body;
 
         const usuarioDB = await Usuario.findOne({email});

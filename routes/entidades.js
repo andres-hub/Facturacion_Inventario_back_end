@@ -6,7 +6,7 @@ const {Router} = require('express');
 const {check} = require('express-validator');
 const {validarCampos} = require('../middlewares/validar-campos');
 
-const {validarJWT, validarAccion, addAction} = require('../middlewares/validar-jwt');
+const {validarJWT, validarAccion} = require('../middlewares/validar-jwt');
 
 const {getEntidades, crearEntidad, actualizarEntidad, getBuscar, getEntidadId} = require('../controllers/entidades');
 
