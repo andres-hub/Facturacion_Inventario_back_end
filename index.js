@@ -30,11 +30,6 @@ app.use('/api/login', require('./routes/auth'));
 app.use('/api/empresas', require('./routes/empresas'));
 app.use('/api/sucursales', require('./routes/sucursales'));
 
-
-app.use('/api/ingresos', require('./routes/ingresos'));
-app.use('/api/gastos', require('./routes/gastos'));
-app.use('/api/movimientos', require('./routes/movimientos'));
-
 // Lo ultimo 
 app.get('*', (req, res) => {
     res.sendFile( path.resolve(__dirname, 'public/index.html') );
