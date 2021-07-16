@@ -18,7 +18,7 @@ const getSucursales = async(req, res = response) =>{
 
             const msg = 'Aun no has registrado la empresa.';
             const status = 400;
-            guardarLog(req, id, msg, status);
+            guardarLog(req, req.uid, msg, status);
             return res.status(status).json({
                 ok: false,
                 msg
