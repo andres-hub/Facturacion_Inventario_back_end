@@ -142,7 +142,8 @@ const renewToken = async(req, res = response)=>{
 
         const usuario = await Usuario.findById(uid);
 
-        const superUser = await   Parametro.findOne({ 'nombre' :'SUPE_USUARIO', 'valor': uid});
+        const superUser = await Parametro.findOne({ 'nombre' :'SUPE_USUARIO', 'valor': uid});
+
         if(superUser)
         {
             req.superUser = true;

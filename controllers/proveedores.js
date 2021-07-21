@@ -1,21 +1,20 @@
-const {response} = require('express');
+const { response } = require('express');
 
 const { guardarLog } = require('../helpers/guardar-Log');
 const { validyty } = require('../helpers/validity-objectid');
 
-const Empresa = require('../models/empresa');
-const Sucursal = require('../models/sucursales');
+const Colaborador = require('../models/colaborador');
+const Proveedor = require('../models/proveedor');
 
-const getSucursales = async(req, res = response) =>{
+const getProveedores = async(req, res = response) =>{
     try {
 
         const desde = Number(req.query.desde) || 0;
-        const limite = Number(req.query.limite) || 0;
+        const limite = Number(req.query.limite) || 50;
 
         const colaborador = await Colaborador.findOne({'Usuario': req.uid});
 
         if(!colaborador){
-
             const msg = 'Aun no has registrado la empresa.';
             const status = 400;
             guardarLog(req, req.uid, msg, status);
@@ -25,21 +24,18 @@ const getSucursales = async(req, res = response) =>{
             });
         }
 
-        const [sucursales, total] = await Promise.all([
-
-            Sucursal.find({'Empresa': empresa._id}).skip(desde).limit(limite),
-            Sucursal.countDocuments()
-
-        ]);
+        const [proveedores, total] = await Promise.all([
+            Proveedor.find({'Empresa': colaborador.Empresa}).skip(desde).limit(limite),
+            Proveedor.countDocuments()
+        ])
 
         res.json({
             ok: true,
             total,
-            sucursales
+            proveedores
         });
 
     } catch (error) {
-        console.log(error);
         const msg = 'Error inesperado... Comuníquese con el administrador del sistema';
         const status = 500;
         guardarLog(req,error, msg, status);
@@ -51,7 +47,7 @@ const getSucursales = async(req, res = response) =>{
 
 };
 
-const getSucursal = async(req, res = response) =>{
+const getProveedor = async(req, res = response) =>{
     try {
 
         const id = req.params.id;
@@ -69,21 +65,23 @@ const getSucursal = async(req, res = response) =>{
         
         }
 
-        const sucursal = await Sucursal.findById(id);
+        const colaborador = await Colaborador.findOne({'Usuario': req.uid});
 
-        if(!sucursal){
-            const msg = 'Error id no valido';
+        if(!colaborador){
+            const msg = 'Aun no has registrado la empresa.';
             const status = 400;
-            guardarLog(req, id, msg, status);
+            guardarLog(req, req.uid, msg, status);
             return res.status(status).json({
                 ok: false,
                 msg
             });
         }
 
+        const proveedor = await Proveedor.findById(id);
+       
         res.json({
             ok: true,
-            sucursal
+            proveedor
         });
 
     } catch (error) {
@@ -98,35 +96,33 @@ const getSucursal = async(req, res = response) =>{
 
 };
 
-const postSucursal = async(req, res = response) =>{
+const postProveedor = async(req, res = response) =>{
     try {
 
         let body = req.body;
-        
-        const empresa = await Empresa.findOne({'CEO': req.uid});
 
-        if(!empresa){
+        const colaborador = await Colaborador.findOne({'Usuario': req.uid});
 
-            const msg = 'Aun no has registrado la empresa.';
-            const status = 400;
-            guardarLog(req, id, msg, status);
+        if(!colaborador){
+            const msg = 'Datos incompletos ';
+            const status = 404;
+            guardarLog(req,req.uid, msg, status);
             return res.status(status).json({
                 ok: false,
                 msg
             });
         }
 
-        body.Empresa = empresa._id;
+        body.Empresa = colaborador.Empresa;
 
-        const sucursal = await new Sucursal(body);
+        const proveedor = new Proveedor(body);
 
-        await sucursal.save();
-        
-        guardarLog(req,JSON.stringify(sucursal), 'ok');
+        await proveedor.save();
 
+        guardarLog(req,JSON.stringify(body), JSON.stringify(proveedor));
         res.json({
             ok: true,
-            sucursal
+            proveedor
         });
 
     } catch (error) {
@@ -141,7 +137,7 @@ const postSucursal = async(req, res = response) =>{
 
 };
 
-const putSucursal = async(req, res = response) =>{
+const putProveedor = async(req, res = response) =>{
     try {
 
         const id = req.params.id;
@@ -159,9 +155,9 @@ const putSucursal = async(req, res = response) =>{
         
         }
 
-        const sucursalDB = await Sucursal.findById(id);
-        if(!sucursalDB){
-            const msg = 'La sucursal no exite';
+        const proveedorDB = await Proveedor.findById(id);
+        if(!proveedorDB){
+            const msg = 'El proveedor no exite';
             const status = 400;
             guardarLog(req, '', msg, status);
             return res.status(400).json({
@@ -171,67 +167,11 @@ const putSucursal = async(req, res = response) =>{
         }
 
         const cambios = {...req.body};
-
-        const sucursal = await Sucursal.findByIdAndUpdate(id,cambios, {new:true});
+        const proveedor = await Proveedor.findByIdAndUpdate(id,cambios, {new:true});
         guardarLog(req, JSON.stringify(cambios), 'Ok');
-
         res.json({
             ok: true,
-            sucursal
-        });
-
-    } catch (error) {
-        console.log(error);
-        const msg = 'Error inesperado... Comuníquese con el administrador del sistema';
-        const status = 500;
-        guardarLog(req,error, msg, status);
-        res.status(status).json({
-            ok: false,
-            msg
-        });
-    }
-
-};
-
-const deleteSucursal = async(req, res = response) =>{
-    try {
-
-        const id = req.params.id;
-        
-        const validarId = await validyty(id);
-        if(!validarId){
-        
-            const msg = 'Error id no valido';
-            const status = 400;
-            guardarLog(req, id, msg, status);
-            return res.status(status).json({
-                ok: false,
-                msg
-            });
-        
-        }
-
-        const sucursalDB = await Sucursal.findById(id);
-
-        if(!sucursalDB){
-
-            const msg = 'La sucursal no exite';
-            const status = 400;
-            guardarLog(req, '', msg, status);
-            return res.status(400).json({
-                ok: false,
-                msg
-            });
-
-        }
-
-        const Estado = (sucursalDB.Estado)? false: true;
-        const sucursal = await Sucursal.findByIdAndUpdate(id,{Estado}, {new: true});
-
-        guardarLog(req, Estado, JSON.stringify(sucursal));
-        res.json({
-            ok: true,
-            sucursal
+            proveedor
         });
 
     } catch (error) {
@@ -247,9 +187,8 @@ const deleteSucursal = async(req, res = response) =>{
 };
 
 module.exports = {
-    getSucursales,
-    getSucursal,
-    postSucursal,
-    putSucursal,
-    deleteSucursal
+    getProveedores,
+    getProveedor,
+    postProveedor,
+    putProveedor
 }

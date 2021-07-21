@@ -1,8 +1,8 @@
 const {response} = require('express');
 
 const { guardarLog } = require('../helpers/guardar-Log');
-const empresa = require('../models/empresa');
 const Empresa = require('../models/empresa');
+const Colaborador = require('../models/colaborador');
 
 const getEmpresa = async(req, res = response) =>{
     try {
@@ -39,7 +39,10 @@ const crearEmpresa = async(req, res = response) =>{
             body.CEO = req.uid;
             empresa = new Empresa(body);
             await empresa.save();
-
+            
+            const colaborador = new Colaborador({ Usuario: req.uid, Empresa: empresa._id});
+            await colaborador.save();
+            
         }
 
         const cambios = {...req.body};
