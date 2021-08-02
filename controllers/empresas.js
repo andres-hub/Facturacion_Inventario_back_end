@@ -2,7 +2,7 @@ const {response} = require('express');
 
 const { guardarLog } = require('../helpers/guardar-Log');
 const Empresa = require('../models/empresa');
-const Colaborador = require('../models/colaborador');
+const Usuario = require('../models/usuario');
 
 const getEmpresa = async(req, res = response) =>{
     try {
@@ -39,9 +39,8 @@ const crearEmpresa = async(req, res = response) =>{
             body.CEO = req.uid;
             empresa = new Empresa(body);
             await empresa.save();
-            
-            const colaborador = new Colaborador({ Usuario: req.uid, Empresa: empresa._id});
-            await colaborador.save();
+                        
+            await Usuario.findByIdAndUpdate(req.uid, {Empresa: empresa._id});
             
         }
 

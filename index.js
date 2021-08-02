@@ -30,6 +30,7 @@ app.use('/api/login', require('./routes/auth'));
 app.use('/api/empresas', require('./routes/empresas'));
 app.use('/api/sucursales', require('./routes/sucursales'));
 app.use('/api/proveedores', require('./routes/proveedores'));
+app.use('/api/productos', require('./routes/productos'));
 
 // Lo ultimo 
 app.get('*', (req, res) => {

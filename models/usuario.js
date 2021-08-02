@@ -32,6 +32,11 @@ const UsuarioSchema = Schema({
         type: Boolean,
         required: true,
         default: true
+    },
+    Empresa:{
+        type: Schema.Types.ObjectId,
+        ref: 'Empresa',
+        required: true
     }
 
 });

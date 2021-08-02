@@ -51,8 +51,11 @@ const login = async(req, res = response)=>{
         }
 
         req.uid = usuarioDB.id;
+        
+        const superUserDB = await Parametro.findOne({ 'nombre' :'SUPE_USUARIO', 'valor': req.uid});
 
-        const token = await generarJWT(usuarioDB.id, usuarioDB.role);
+        const superUser =(superUserDB)? true: false;
+        const token = await generarJWT(usuarioDB.id, usuarioDB.role, superUser, usuarioDB.Empresa);
         
         req.superUser = false;
         guardarLog(req,email,`ok`);
@@ -137,18 +140,12 @@ const renewToken = async(req, res = response)=>{
 
         const uid = req.uid;
         const role = req.role;
-
-        const token = await generarJWT(uid, role);
+        const empresa = req.empresa;
+        const superUser = req.superUser
+        
+        const token = await generarJWT(uid, role, superUser, empresa);
 
         const usuario = await Usuario.findById(uid);
-
-        const superUser = await Parametro.findOne({ 'nombre' :'SUPE_USUARIO', 'valor': uid});
-
-        if(superUser)
-        {
-            req.superUser = true;
-        }
-
         const menu = await getMenuFrontEnd(req);
         
         res.json({
@@ -275,7 +272,6 @@ const cambiarPass = async(req, res = response) =>{
         });
 
     } catch (error) {
-        console.log(error);
         const msg = 'Error inesperado... Comuníquese con el administrador del sistema';
         const status = 500;
         guardarLog(req,error, msg, status);

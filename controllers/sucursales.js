@@ -12,22 +12,9 @@ const getSucursales = async(req, res = response) =>{
         const desde = Number(req.query.desde) || 0;
         const limite = Number(req.query.limite) || 0;
 
-        const colaborador = await Colaborador.findOne({'Usuario': req.uid});
-
-        if(!colaborador){
-
-            const msg = 'Aun no has registrado la empresa.';
-            const status = 400;
-            guardarLog(req, req.uid, msg, status);
-            return res.status(status).json({
-                ok: false,
-                msg
-            });
-        }
-
         const [sucursales, total] = await Promise.all([
 
-            Sucursal.find({'Empresa': empresa._id}).skip(desde).limit(limite),
+            Sucursal.find({'Empresa': req.empresa}).skip(desde).limit(limite),
             Sucursal.countDocuments()
 
         ]);
@@ -102,21 +89,7 @@ const postSucursal = async(req, res = response) =>{
     try {
 
         let body = req.body;
-        
-        const empresa = await Empresa.findOne({'CEO': req.uid});
-
-        if(!empresa){
-
-            const msg = 'Aun no has registrado la empresa.';
-            const status = 400;
-            guardarLog(req, id, msg, status);
-            return res.status(status).json({
-                ok: false,
-                msg
-            });
-        }
-
-        body.Empresa = empresa._id;
+        body.Empresa = req.empresa;
 
         const sucursal = await new Sucursal(body);
 

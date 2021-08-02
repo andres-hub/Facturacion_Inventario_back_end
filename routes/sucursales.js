@@ -6,7 +6,7 @@ const {Router} = require('express');
 const {check} = require('express-validator');
 const {validarCampos} = require('../middlewares/validar-campos');
 
-const {validarJWT, validarAccion} = require('../middlewares/validar-jwt');
+const {validarJWT, validarAccion, validarEmpresa} = require('../middlewares/validar-jwt');
 
 const { getSucursales, getSucursal, postSucursal, putSucursal, deleteSucursal } = require('../controllers/sucursales');
 
@@ -16,7 +16,8 @@ router.get('/',
     [
         validarJWT,
         (req, res, next)=>{req.accion = 'getSucursales',next()},
-        validarAccion
+        validarAccion,
+        validarEmpresa
     ],
     getSucursales
 );
@@ -25,7 +26,8 @@ router.get('/:id',
     [
         validarJWT,
         (req, res, next)=>{req.accion = 'getSucursales',next()},
-        validarAccion
+        validarAccion,
+        validarEmpresa
     ],
     getSucursal
 );
@@ -37,7 +39,8 @@ router.post('/',
         validarAccion,
         check('Nombre', 'El nombre es obligatorio').not().isEmpty(),
         check('Direccion', 'La dirección es obligatoria').not().isEmpty(),
-        validarCampos
+        validarCampos,
+        validarEmpresa
     ],
     postSucursal
 );
@@ -49,7 +52,8 @@ router.put('/:id',
         validarAccion,
         check('Nombre', 'El nombre es obligatorio').not().isEmpty(),
         check('Direccion', 'La dirección es obligatoria').not().isEmpty(),
-        validarCampos
+        validarCampos,
+        validarEmpresa
     ],
     putSucursal
 );
@@ -58,7 +62,8 @@ router.delete('/:id',
     [
         validarJWT, 
         (req, res, next)=>{req.accion = 'deleteSucursal',next()},
-        validarAccion
+        validarAccion,
+        validarEmpresa
     ],
     deleteSucursal
 )

@@ -6,7 +6,7 @@ const { Router } = require('express');
 const { check } = require('express-validator');
 const { validarCampos } = require('../middlewares/validar-campos');
 
-const { validarJWT, validarAccion } = require('../middlewares/validar-jwt');
+const { validarJWT, validarAccion, validarEmpresa } = require('../middlewares/validar-jwt');
 const { postProveedor, getProveedores, getProveedor, putProveedor } = require('../controllers/proveedores');
 
 const router = Router();
@@ -15,7 +15,8 @@ router.get('/',
     [
         validarJWT,
         (req, res, next)=>{req.accion = 'getProveedores',next()},
-        validarAccion
+        validarAccion,
+        validarEmpresa
     ],
     getProveedores
 );
@@ -24,7 +25,8 @@ router.get('/:id',
     [
         validarJWT,
         (req, res, next)=>{req.accion = 'postProveedor',next()},
-        validarAccion
+        validarAccion,
+        validarEmpresa
     ],
     getProveedor
 );
@@ -36,7 +38,8 @@ router.post('/',
         validarAccion,
         check('Nombre', 'El nombre es obligatorio').not().isEmpty(),
         check('Telefono', 'El teléfono es obligatorio').not().isEmpty(),
-        validarCampos
+        validarCampos,
+        validarEmpresa
     ],
     postProveedor
 );
@@ -48,7 +51,8 @@ router.put('/:id',
         validarAccion,
         check('Nombre', 'El nombre es obligatorio').not().isEmpty(),
         check('Telefono', 'El teléfono es obligatorio').not().isEmpty(),
-        validarCampos
+        validarCampos,
+        validarEmpresa
     ],
     putProveedor
 )

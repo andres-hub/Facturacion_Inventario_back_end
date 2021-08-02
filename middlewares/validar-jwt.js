@@ -5,6 +5,7 @@ const Parametro = require('../models/parametro');
 const Accion = require('../models/accion');
 const Permiso = require('../models/permiso');
 const { guardarLog } = require('../helpers/guardar-Log');
+const { validyty } = require('../helpers/validity-objectid');
 
 const validarJWT = (req, res = response, next)=>{
     
@@ -22,13 +23,13 @@ const validarJWT = (req, res = response, next)=>{
 
     try {
 
-        const {uid, role} = jwt.verify(token, process.env.JWT_SECRET);
+        const {uid, role, superUser, empresa} = jwt.verify(token, process.env.JWT_SECRET);
 
         req.uid = uid;
         req.role = role;
-        
+        req.superUser = superUser;
+        req.empresa = empresa;
         next();
-
     } catch (error) {
         const msg = 'Token invalido';
         const status = 401;
@@ -60,7 +61,6 @@ const validarAccion = async(req, res = response, next)=>{
                    msg
                 });
             }
-
             const permiso = await Permiso.findOne({'asignado': req.role, 'accion': accion._id});
             if(!permiso){
                 const msg = 'Acceso denegado';
@@ -120,9 +120,27 @@ const validarJWTCambioPass = (req, res = response, next)=>{
     
 }
 
+const validarEmpresa = async(req, res = response, next)=>{
+    const empresa = req.empresa;
+    const validarId = await validyty(empresa);
+    if(!validarId){
+    
+        const msg = 'Aun no has registrado la empresa.';
+        const status = 400;
+        guardarLog(req, empresa, msg, status);
+        return res.status(status).json({
+            ok: false,
+            msg
+        });
+    
+    }       
+    next();
+}
+
 
 module.exports = {
     validarJWT,
     validarAccion,
-    validarJWTCambioPass
+    validarJWTCambioPass,
+    validarEmpresa
 }
